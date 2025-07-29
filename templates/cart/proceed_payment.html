@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  .glassy-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #0d47a1;
+  }
+
+  .glowing-header {
+    font-family: 'Segoe UI', sans-serif;
+    color: #0d47a1;
+    text-shadow: 0 0 8px #bbdefb;
+  }
+
+  .btn-purple {
+    background: linear-gradient(135deg, #42a5f5, #1e88e5);
+    color: white;
+    border: none;
+  }
+
+  .btn-purple:hover {
+    background: linear-gradient(135deg, #1976d2, #0d47a1);
+  }
+
+  .card-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .card-icons img {
+    max-height: 28px;
+    object-fit: contain;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.1));
+  }
+
+  label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    display: block;
+    color: #0d47a1;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    border: 1.5px solid #90caf9;
+    font-size: 1rem;
+    background-color: #ffffff;
+    transition: border-color 0.3s ease;
+  }
+
+  input[type="text"]:focus {
+    border-color: #1976d2;
+    outline: none;
+  }
+</style>
+
+<div class="container my-5">
+  <!-- <h2 class="text-center mb-4 glowing-header">🧾 Proceed with Payment</h2> -->
+
+  {% if seller_qr and user_qr %}
+    <div class="text-center">
+      <p class="lead mb-3">Scan the seller's QR to proceed with payment:</p>
+      <img src="{{ seller_qr }}" alt="Seller QR Code" class="img-fluid mb-4" style="max-width: 300px;">
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-purple btn-lg rounded-pill shadow-sm">
+          ✅ Confirm Payment Done
+        </button>
+      </form>
+    </div>
+  {% else %}
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg border-0 rounded-4 p-4 glassy-card">
+
+          <!-- Card Icons Row -->
+          <div class="card-icons">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/RuPay.svg/1280px-RuPay.svg.png" alt="RuPay" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="MasterCard" />
+          </div>
+
+          <h5 class="mb-3 text-center glowing-header">💳 Enter Payment Details</h5>
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label for="card_number" class="form-label">Card Number</label>
+              <input type="text" name="card_number" id="card_number" class="form-control" placeholder="1234 5678 9012 3456" required>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="cvv" class="form-label">CVV</label>
+                <input type="text" name="cvv" id="cvv" class="form-control" placeholder="123" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="expiry" class="form-label">Expiry Date</label>
+                <input type="text" name="expiry" id="expiry" class="form-control" placeholder="MM/YY" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="address" class="form-label">Billing Address</label>
+              <input type="text" name="address" id="address" class="form-control" placeholder="123 Main St, City" required>
+            </div>
+
+            <div class="mb-4">
+              <label for="phone" class="form-label">Phone Number</label>
+              <input type="text" name="phone" id="phone" class="form-control" placeholder="+91-XXXXXXXXXX" required>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-purple btn-lg rounded-pill shadow-sm">
+                💳 Submit Payment
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">📊 Analytics Dashboard</h2>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 text-center">
+
+        <div class="col">
+            <div class="card shadow border-primary">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Categories</h5>
+                    <p class="display-6">{{ total_categories }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card shadow border-success">
+                <div class="card-body">
+                    <h5 class="card-title text-success">Products</h5>
+                    <p class="display-6">{{ total_products }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card shadow border-warning">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">Sold Products</h5>
+                    <p class="display-6">{{ total_sold_products }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="col">
+            <div class="card shadow border-danger">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">Unsold Products</h5>
+                    <p class="display-6">{{ total_unsold_products }}</p>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="col">
+            <div class="card shadow border-info">
+                <div class="card-body">
+                    <h5 class="card-title text-info">Feedbacks</h5>
+                    <p class="display-6">{{ total_feedbacks }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="col">
+            <div class="card shadow border-success">
+                <div class="card-body">
+                    <h5 class="card-title text-success">Resolved Feedbacks</h5>
+                    <p class="display-6">{{ resolved_feedbacks }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card shadow border-danger">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">Unresolved Feedbacks</h5>
+                    <p class="display-6">{{ unresolved_feedbacks }}</p>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="col">
+            <div class="card shadow border-secondary">
+                <div class="card-body">
+                    <h5 class="card-title text-secondary">User Profiles</h5>
+                    <p class="display-6">{{ total_profiles }}</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

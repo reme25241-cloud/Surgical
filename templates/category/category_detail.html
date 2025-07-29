@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Category Details{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white text-center">
+                    Category Detail
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ category.name }}</p>
+                    <div class="text-center">
+                        <a href="{% url 'category_list' %}" class="btn btn-primary mt-3">Back to Category List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<style>
+  .glassy-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #000;
+  }
+
+  .btn-purple {
+    background: linear-gradient(135deg, #7b1fa2, #9c27b0);
+    color: white;
+    border: none;
+  }
+
+  .btn-purple:hover {
+    background: linear-gradient(135deg, #6a1b9a, #ab47bc);
+  }
+
+  .btn-outline-purple {
+    border: 2px solid #8e24aa;
+    color: #8e24aa;
+  }
+
+  .btn-outline-purple:hover {
+    background-color: #f3e5f5;
+    color: #6a1b9a;
+  }
+
+  .form-label, .form-control {
+    color: #000;
+    font-weight: 500;
+  }
+
+  .glowing-header {
+    font-family: 'Glowing text', sans-serif;
+    color: #4a148c;
+    text-shadow: 0 0 6px #ba68c8;
+  }
+</style>
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card glassy-card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+          <h5 class="card-title glowing-header text-center mb-4">
+            <i class="bi bi-pencil-fill me-2 text-purple"></i> Update Your Information
+          </h5>
+
+          <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-3">
+              {{ form|crispy }}
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center mt-4 gap-2">
+              <a href="{% url 'profile' %}" class="btn btn-outline-purple btn-sm rounded-pill">
+                <i class="bi bi-arrow-left-circle me-1"></i> Back to Profile
+              </a>
+              <a href="{% url 'dashboard' %}" class="btn btn-outline-purple btn-sm rounded-pill">
+                <i class="bi bi-house-door-fill me-1"></i> Dashboard
+              </a>
+              <button type="submit" class="btn btn-purple btn-sm rounded-pill ms-auto">
+                <i class="bi bi-check2-circle me-1"></i> Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
