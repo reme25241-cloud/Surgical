@@ -1,8 +1,0 @@
-gunicorn 
-whitenoise 
-psycopg2-binary
-django
-django-crispy-forms
-crispy-bootstrap5
-pandas
-pillow
