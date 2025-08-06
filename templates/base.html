@@ -17,6 +17,8 @@
       --dark-blue: #0d47a1;
       --hover-blue: #1976d2;
       --text-color: #0d1a26;
+      --admin-bg: #fff3e0;   /* Light orange for admin */
+      --user-bg: #e3f2fd;    /* Light blue for user */
     }
 
     html, body {
@@ -24,9 +26,17 @@
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: var(--light-blue);
       color: var(--text-color);
       font-size: 1.05rem;
+      background-color: var(--light-blue); /* default for anonymous */
+    }
+
+    body.admin-bg {
+      background-color: var(--admin-bg);
+    }
+
+    body.user-bg {
+      background-color: var(--user-bg);
     }
 
     .content-wrapper {
@@ -73,19 +83,22 @@
       text-align: center;
     }
 
+    /* Base Dropdown Menu Styling */
     .dropdown-menu {
-      left: 80px !important;
-      top: 0 !important;
+      left: 90px !important; /* slight offset from sidebar (80px) */
+      top: auto !important;
+      bottom: auto !important;
       background-color: var(--dark-blue);
       border: none;
       z-index: 2000 !important;
-      min-width: 200px;
+      min-width: 220px;
+      transform: translateY(10px); /* for dropup effect */
+      transition: all 0.2s ease-in-out;
     }
-
+    /* Ensure dropdown items are visible and styled */
     .dropdown-menu .dropdown-item {
       color: white;
     }
-
     .dropdown-menu .dropdown-item:hover {
       background-color: var(--hover-blue);
       color: #fff;
@@ -131,11 +144,14 @@
       font-size: 1.5rem;
     }
 
+    /* When screen is smaller, override dropup to dropdown */
     @media (max-width: 768px) {
-      .icon-circle {
-        width: 45px;
-        height: 45px;
-        font-size: 1.2rem;
+      .dropup .dropdown-menu {
+        bottom: auto !important;
+        top: 100% !important;  /* open downwards */
+        transform: translateY(0px); /* no vertical offset */
+        left: 70px !important;
+        margin-top: 0.25rem;
       }
 
       .sidebar-toggle-btn {
@@ -145,22 +161,12 @@
       .main-content {
         margin-left: 80px;
       }
-
-      .dropdown-menu {
-        left: 80px !important;
-        top: auto !important;
-        bottom: -10px !important; /* Adjust dropdown distance from toggle */
-        background-color: var(--dark-blue);
-        border: none;
-        z-index: 2000 !important;
-        min-width: 200px;
-      }
-
-
     }
   </style>
 </head>
+<!-- <body class="sidebar-hidden {% if user.is_authenticated %}{% if user.is_superuser %}admin-bg{% else %}user-bg{% endif %}{% endif %}"> -->
 <body class="sidebar-hidden">
+
 
 <!-- Sidebar Toggle Button -->
 <button id="toggleSidebar" class="sidebar-toggle-btn">&#9776;</button>
@@ -168,6 +174,7 @@
 <div class="content-wrapper">
   <!-- Sidebar -->
   <div class="sidebar">
+    <!-- Always Visible -->
     <a href="/" class="nav-link sidebar-link" title="Home">
       <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center">
         <i class="bi bi-house-door-fill"></i>
@@ -180,33 +187,43 @@
       </div>
     </a>
 
-    <a href="{% url 'wishlist' %}" class="nav-link sidebar-link" title="Wishlist">
-      <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center">
-        <i class="bi bi-heart-fill"></i>
-      </div>
-    </a>
-
-    <a href="{% url 'cart' %}" class="nav-link sidebar-link" title="Cart">
-      <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center">
-        <i class="bi bi-cart-fill"></i>
-      </div>
-    </a>
-
-    {% if user.is_authenticated %}
-      <!-- <a href="{% url 'bought_history' %}" class="nav-link sidebar-link" title="Purchase History">
+    {% if user.is_authenticated and not user.is_superuser %}
+      <!-- Regular Authenticated User Only -->
+      <a href="{% url 'wishlist' %}" class="nav-link sidebar-link" title="Wishlist">
         <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center">
-          <i class="bi bi-clock-history"></i>
+          <i class="bi bi-heart-fill"></i>
         </div>
-      </a> -->
+      </a>
 
+      <a href="{% url 'cart' %}" class="nav-link sidebar-link" title="Cart">
+        <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center">
+          <i class="bi bi-cart-fill"></i>
+        </div>
+      </a>
+      <!-- Profile -->
       <a href="{% url 'profile' %}" class="nav-link sidebar-link" title="Profile">
         <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center">
           <i class="bi bi-person-circle"></i>
         </div>
       </a>
+
+      <!-- Pending Purchases -->
+      <a href="{% url 'my_pending_purchases' %}" class="nav-link sidebar-link" title="Pending Purchases">
+        <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center">
+          <i class="bi bi-clock-fill"></i>  <!-- represents "waiting"/pending -->
+        </div>
+      </a>
+
+      <!-- Bought History -->
+      <a href="{% url 'bought_history' %}" class="nav-link sidebar-link" title="Purchase History">
+        <div class="icon-circle rounded-circle d-flex align-items-center justify-content-center">
+          <i class="bi bi-bag-check-fill"></i>  <!-- purchase completed -->
+        </div>
+      </a>
+
     {% endif %}
 
-    <!-- Dropdown (Updated with dropup) -->
+    <!-- Dropdown for More -->
     <div class="dropdown dropup mt-2 position-relative">
       <button class="nav-link icon-circle rounded-circle d-flex align-items-center justify-content-center dropdown-toggle"
               type="button"
@@ -218,10 +235,14 @@
       </button>
       <ul class="dropdown-menu text-start shadow" aria-labelledby="dropdownMenuButton">
         <li><a class="dropdown-item sidebar-link" href="{% url 'about' %}"><i class="bi bi-info-circle-fill"></i> About</a></li>
-        <li><a class="dropdown-item sidebar-link" href="{% url 'feedback' %}"><i class="bi bi-chat-dots-fill"></i> Feedback</a></li>
-        <li><a class="dropdown-item sidebar-link" href="{% url 'terms_and_conditions' %}"><i class="bi bi-file-earmark-text-fill"></i> Terms</a></li>
-        {% if user.is_superuser %}
 
+        {% if user.is_authenticated and not user.is_superuser %}
+          <li><a class="dropdown-item sidebar-link" href="{% url 'feedback' %}"><i class="bi bi-chat-dots-fill"></i> Feedback</a></li>
+        {% endif %}
+
+        <li><a class="dropdown-item sidebar-link" href="{% url 'terms_and_conditions' %}"><i class="bi bi-file-earmark-text-fill"></i> Terms</a></li>
+
+        {% if user.is_superuser %}
           <li><hr class="dropdown-divider white-divider"></li>
           <li><h6 class="dropdown-item sidebar-link">~ Admin Options ~</h6></li>
           <li><a class="dropdown-item sidebar-link" href="{% url 'product_list' %}"><i class="bi bi-plus-circle-fill"></i> Add Product</a></li>
@@ -233,13 +254,12 @@
       </ul>
     </div>
 
-
-    <!-- Bottom Auth Icons -->
+    <!-- Bottom Auth Section -->
     <div class="mt-auto mb-3 d-flex flex-column align-items-center gap-2">
       {% if user.is_authenticated %}
         <form method="POST" action="{% url 'logout' %}" class="d-inline sidebar-link">
           {% csrf_token %}
-          <button type="submit" class="icon-circle rounded-circle d-flex align-items-center justify-content-center">
+          <button type="submit" class="icon-circle rounded-circle d-flex align-items-center justify-content-center" title="Logout">
             <i class="bi bi-box-arrow-right"></i>
           </button>
         </form>
@@ -260,29 +280,13 @@
 
   <!-- Main Content -->
   <div class="main-content">
-      {% block content %}
-        {% if user.is_authenticated and not user.is_superuser %}
-          <div class="container py-5">
-            <div class="row justify-content-center">
-              <div class="col-lg-10">
-                <section class="p-4 rounded shadow-sm" style="background-color: var(--blue-accent); color: #000;">
-                  <div class="text-center mb-3">
-                    <img src="https://thumbs.dreamstime.com/b/surgical-instruments-sterille-table-56855980.jpg" alt="Shivayogi Logo" height="60" class="mb-2 rounded">
-                    <h1 class="fw-bold">Shivayogi Surgical Hub</h1>
-                    <p class="mt-2 mb-0"><i class="bi bi-person-circle"></i> Welcome, <strong>{{ user.username }}</strong></p>
-                  </div>
-
-                  <p><strong>Shivayogi Surgical Hub</strong> is a digital platform designed for hospitals, clinics, and medical professionals to source and purchase surgical instruments.</p>
-                  <p>Built with ease-of-use in mind, the system streamlines procurement with secure checkout, verified listings, and real-time tracking.</p>
-                </section>
-              </div>
-            </div>
-          </div>
-        {% elif user.is_authenticated and user.is_superuser %}
+    {% block content %}
+      {% if user.is_authenticated %}
+        {% if user.is_superuser %}
+          <!-- Admin Dashboard -->
           <div class="container my-5">
-            <h2 class="text-center mb-4">📊 Analytics Dashboard</h2>
+            <h2 class="text-center mb-4">📊 Admin Dashboard</h2>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 text-center">
-
               <div class="col">
                 <div class="card shadow border-primary">
                   <div class="card-body">
@@ -291,7 +295,6 @@
                   </div>
                 </div>
               </div>
-
               <div class="col">
                 <div class="card shadow border-success">
                   <div class="card-body">
@@ -300,7 +303,6 @@
                   </div>
                 </div>
               </div>
-
               <div class="col">
                 <div class="card shadow border-warning">
                   <div class="card-body">
@@ -309,7 +311,6 @@
                   </div>
                 </div>
               </div>
-
               <div class="col">
                 <div class="card shadow border-info">
                   <div class="card-body">
@@ -318,7 +319,6 @@
                   </div>
                 </div>
               </div>
-
               <div class="col">
                 <div class="card shadow border-secondary">
                   <div class="card-body">
@@ -327,29 +327,50 @@
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         {% else %}
+          <!-- Regular User Welcome Section -->
           <div class="container py-5">
             <div class="row justify-content-center">
               <div class="col-lg-10">
                 <section class="p-4 rounded shadow-sm" style="background-color: var(--blue-accent); color: #000;">
                   <div class="text-center mb-3">
                     <img src="https://thumbs.dreamstime.com/b/surgical-instruments-sterille-table-56855980.jpg" alt="Shivayogi Logo" height="60" class="mb-2 rounded">
-                    <h1 class="fw-bold">Shivayogi Surgical Hub</h1>
-                    <p class="mt-2 mb-0"><i class="bi bi-person-circle"></i> Welcome, <strong>{{ user.username }}</strong></p>
+                    <h1 class="fw-bold">Welcome to Shivayogi Surgical Hub</h1>
+                    <p><i class="bi bi-person-circle"></i> Hello, <strong>{{ user.username }}</strong>!</p>
                   </div>
-
-                  <p><strong>Shivayogi Surgical Hub</strong> is a digital platform designed for hospitals, clinics, and medical professionals to source and purchase surgical instruments.</p>
-                  <p>Built with ease-of-use in mind, the system streamlines procurement with secure checkout, verified listings, and real-time tracking.</p>
+                  <p><strong>Shop smarter:</strong> Browse products, manage your cart, and place purchase requests securely.</p>
+                  <p>Check your wishlist, give feedback, and track your activity anytime from your profile dashboard.</p>
                 </section>
               </div>
             </div>
           </div>
         {% endif %}
-      {% endblock %}
+      {% else %}
+        <!-- Guest/Not Logged In -->
+        <div class="container py-5">
+          <div class="row justify-content-center">
+            <div class="col-lg-10">
+              <section class="p-4 rounded shadow-sm" style="background-color: var(--blue-accent); color: #000;">
+                <div class="text-center mb-3">
+                  <img src="https://thumbs.dreamstime.com/b/surgical-instruments-sterille-table-56855980.jpg" alt="Shivayogi Logo" height="60" class="mb-2 rounded">
+                  <h1 class="fw-bold">Welcome to Shivayogi Surgical Hub</h1>
+                  <p class="lead">Your destination for surgical tools and instruments.</p>
+                </div>
+                <p>Sign up or log in to explore our catalog, manage your purchases, and provide feedback.</p>
+                <div class="text-center mt-4">
+                  <a href="{% url 'login' %}" class="btn btn-primary me-2">Login</a>
+                  <a href="{% url 'signup' %}" class="btn btn-outline-primary">Register</a>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endblock %}
   </div>
+
 </div>
 
 <!-- Footer -->

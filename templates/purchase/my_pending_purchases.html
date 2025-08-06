@@ -1,26 +1,33 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>My Pending Purchases</h2>
-
-{% if pending_requests %}
-    <table>
-        <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Seller Confirmed</th>
-            <th>Buyer Received</th>
-        </tr>
-        {% for request in pending_requests %}
-        <tr>
-            <td>{{ request.cart.product.name }}</td>
-            <td>{{ request.get_total_price }}</td>
-            <td>{{ request.seller_confirmed }}</td>
-            <td>{{ request.buyer_received }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-{% else %}
-    <p>You have no pending purchases.</p>
-{% endif %}
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-clock-fill"></i>  My Pending Purchases</h2>
+    </div>
+    {% if pending_requests %}
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+                <table>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Seller Confirmed</th>
+                        <th>Buyer Received</th>
+                    </tr>
+                    {% for request in pending_requests %}
+                    <tr>
+                        <td>{{ request.cart.product.name }}</td>
+                        <td>{{ request.get_total_price }}</td>
+                        <td>{{ request.seller_confirmed }}</td>
+                        <td>{{ request.buyer_received }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+    {% else %}
+            <div class="alert alert-info text-center mt-4 rounded-pill shadow-sm">
+                <i class="bi bi-info-circle-fill"></i><p>You have no pending purchases.</p>
+            </div>
+    {% endif %}
+</div>
 {% endblock %}
