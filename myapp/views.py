@@ -82,6 +82,30 @@ def edit_profile(request):
     return render(request, 'account/edit_profile.html', {'form': form})
 
 
+# user list
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)  # only staff/admin can access
+def all_users_view(request):
+    users = User.objects.select_related('profile').all()
+    return render(request, 'users/all_users.html', {'users': users})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)  # only staff/admin can delete
+def delete_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        user.delete()
+        messages.success(request, "User deleted successfully.")
+        return redirect('all_users')  # redirect back to list
+
+    return render(request, 'users/confirm_delete.html', {'user': user})
 
 
 # dashboard
@@ -343,6 +367,7 @@ from django.contrib.auth.models import User
 from .models import Cart, PendingPurchaseRequest, ManualPaymentInfo
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from .forms import ManualPaymentForm
 
 @login_required
 def proceed_payment(request):
@@ -351,31 +376,13 @@ def proceed_payment(request):
         return redirect('cart')
 
     user_profile = request.user.profile
-    seller_profile = cart_items.first().product.user.profile  # Assuming same seller for all items
+    seller_profile = cart_items.first().product.user.profile
     seller_qr = seller_profile.qr_code_image.url if seller_profile.qr_code_image else None
     user_qr = user_profile.qr_code_image.url if user_profile.qr_code_image else None
 
     if request.method == "POST":
-        # Case 1: QR payment
+        # Case 1: QR Payment
         if seller_qr and user_qr:
-            for item in cart_items:
-                PendingPurchaseRequest.objects.create(user=request.user, cart=item, payment_proceeded=True)
-                item.payment_proceeded = True
-                item.product.is_sold = True  # Assuming there's an is_sold field
-                item.product.save()
-                item.save()
-            return redirect('cart')
-
-        # Case 2: Manual payment
-        else:
-            ManualPaymentInfo.objects.create(
-                user=request.user,
-                card_number=request.POST.get('card_number'),
-                cvv=request.POST.get('cvv'),
-                expiry=request.POST.get('expiry'),
-                address=request.POST.get('address'),
-                phone=request.POST.get('phone')
-            )
             for item in cart_items:
                 PendingPurchaseRequest.objects.create(user=request.user, cart=item, payment_proceeded=True)
                 item.payment_proceeded = True
@@ -384,11 +391,39 @@ def proceed_payment(request):
                 item.save()
             return redirect('cart')
 
-    return render(request, 'cart/proceed_payment.html', {
-        'cart_items': cart_items,
-        'seller_qr': seller_qr,
-        'user_qr': user_qr
+        # Case 2: Manual Payment
+        else:
+            form = ManualPaymentForm(request.POST)
+            if form.is_valid():
+                payment = form.save(commit=False)
+                payment.user = request.user
+                payment.save()
+                for item in cart_items:
+                    PendingPurchaseRequest.objects.create(user=request.user, cart=item, payment_proceeded=True)
+                    item.payment_proceeded = True
+                    item.product.is_sold = True
+                    item.product.save()
+                    item.save()
+                return redirect('cart')
+            else:
+                # If invalid, re-render with errors
+                return render(request, "cart/proceed_payment.html", {
+                    "cart_items": cart_items,
+                    "seller_qr": seller_qr,
+                    "user_qr": user_qr,
+                    "form": form,
+                })
+
+    else:
+        form = ManualPaymentForm()
+
+    return render(request, "cart/proceed_payment.html", {
+        "cart_items": cart_items,
+        "seller_qr": seller_qr,
+        "user_qr": user_qr,
+        "form": form,
     })
+
 
 # ----------------------------
 # CHECKOUT & PURCHASE REQUESTS

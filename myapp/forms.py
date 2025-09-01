@@ -134,3 +134,25 @@ class PendingPurchaseRequestForm(forms.ModelForm):
 # Optional: Wishlist toggle form (if needed)
 class WishlistToggleForm(forms.Form):
     product_id = forms.IntegerField(widget=forms.HiddenInput())
+
+
+# forms.py
+from django import forms
+from .models import ManualPaymentInfo
+
+class ManualPaymentForm(forms.ModelForm):
+    class Meta:
+        model = ManualPaymentInfo
+        fields = ["card_number", "cvv", "expiry", "address", "phone"]
+
+    def clean_card_number(self):
+        card = self.cleaned_data.get("card_number")
+        if not card.isdigit() or len(card) not in [13, 16]:
+            raise forms.ValidationError("Enter a valid card number")
+        return card
+
+    def clean_cvv(self):
+        cvv = self.cleaned_data.get("cvv")
+        if not cvv.isdigit() or len(cvv) not in [3, 4]:
+            raise forms.ValidationError("Enter a valid CVV")
+        return cvv
