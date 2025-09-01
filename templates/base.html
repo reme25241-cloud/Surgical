@@ -12,24 +12,36 @@
 
   <style>
     :root {
-      --light-blue: #e0f7ff;
+      --light-blue: #e0f7ff;   /* default (anonymous) */
       --blue-accent: #90caf9;
       --dark-blue: #0d47a1;
       --hover-blue: #1976d2;
       --text-color: #0d1a26;
-      --admin-bg: #fff3e0;   /* Light orange for admin */
-      --user-bg: #e3f2fd;    /* Light blue for user */
+      --admin-bg: #fff3e0;   /* Light orange */
+      --user-bg: #e3f2fd;    /* Light blue */
     }
 
-    html, body {
-      height: 100%;
+    /* Default (anonymous user) */
+    body {
+      background-color: var(--light-blue);
+      color: var(--text-color);
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 1.05rem;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      color: var(--text-color);
-      font-size: 1.05rem;
-      background-color: var(--light-blue); /* default for anonymous */
+      height: 100%;
     }
+
+    /* Admin theme */
+    body.admin {
+      background-color: var(--admin-bg);
+    }
+
+    /* Logged-in user theme */
+    body.user {
+      background-color: var(--user-bg);
+    }
+
 
     body.admin-bg {
       background-color: var(--admin-bg);
@@ -165,7 +177,7 @@
   </style>
 </head>
 <!-- <body class="sidebar-hidden {% if user.is_authenticated %}{% if user.is_superuser %}admin-bg{% else %}user-bg{% endif %}{% endif %}"> -->
-<body class="sidebar-hidden">
+<body class="sidebar-hidden {% if request.user.is_superuser %}admin{% elif request.user.is_authenticated %}user{% endif %}">
 
 
 <!-- Sidebar Toggle Button -->
@@ -290,40 +302,40 @@
               <div class="col">
                 <div class="card shadow border-primary">
                   <div class="card-body">
-                    <h5 class="card-title text-primary">Categories</h5>
-                    <p class="display-6">{{ total_categories }}</p>
+                    <a href="{% url 'category_list' %}">
+                      <h5 class="card-title text-primary">Categories</h5>
+                      <p class="display-6">{{ total_categories }}</p>
+                    </a>
                   </div>
                 </div>
               </div>
               <div class="col">
                 <div class="card shadow border-success">
                   <div class="card-body">
-                    <h5 class="card-title text-success">Products</h5>
-                    <p class="display-6">{{ total_products }}</p>
-                  </div>
-                </div>
-              </div>
-              <div class="col">
-                <div class="card shadow border-warning">
-                  <div class="card-body">
-                    <h5 class="card-title text-warning">Sold Products</h5>
-                    <p class="display-6">{{ total_sold_products }}</p>
+                    <a href="{% url 'product_list' %}">
+                      <h5 class="card-title text-success">Products</h5>
+                      <p class="display-6">{{ total_products }}</p>
+                    </a>
                   </div>
                 </div>
               </div>
               <div class="col">
                 <div class="card shadow border-info">
                   <div class="card-body">
-                    <h5 class="card-title text-info">Feedbacks</h5>
-                    <p class="display-6">{{ total_feedbacks }}</p>
+                    <a href="{% url 'view_feedbacks' %}">
+                      <h5 class="card-title text-info">Feedbacks</h5>
+                      <p class="display-6">{{ total_feedbacks }}</p>
+                    </a>
                   </div>
                 </div>
               </div>
               <div class="col">
                 <div class="card shadow border-secondary">
                   <div class="card-body">
-                    <h5 class="card-title text-secondary">User Profiles</h5>
-                    <p class="display-6">{{ total_profiles }}</p>
+                    <a href="{% url 'all_users' %}">
+                      <h5 class="card-title text-secondary">User Profiles</h5>
+                      <p class="display-6">{{ total_profiles }}</p>
+                    </a>
                   </div>
                 </div>
               </div>
